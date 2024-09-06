@@ -12,7 +12,7 @@ class BasicBlock(nn.Module):
         super().__init__()
         self.basic_block = nn.Sequential(
             nn.Conv2d(in_channels=in_channels,out_channels=out_channels//4,kernel_size=1,stride=1,padding=0),
-            nn.Conv2d(in_channels=out_channels//4,out_channels=out_channels//4,kernel_size=1,stride=1,padding=1),
+            nn.Conv2d(in_channels=out_channels//4,out_channels=out_channels//4,kernel_size=3,stride=1,padding=1),
             nn.Conv2d(in_channels=out_channels//4,out_channels=out_channels,kernel_size=1,stride=1,padding=0)
         )
 
@@ -34,9 +34,9 @@ class SmallBasicBlock(nn.Module):
         return self.small_basic_block(x)
 
 class MixedInputBlock(nn.Module):
-    def __init__(self,in_channels,out_channels=64,block=BasicBlock):
+    def __init__(self,in_channels,out_channels=64,block=SmallBasicBlock):
         super().__init__()
-        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=1, padding=1)
         self.max_pool1 = nn.MaxPool2d(kernel_size=3,stride=1)
         self.block = block(in_channels=out_channels,out_channels=out_channels*2)
         self.max_pool2 = nn.MaxPool2d(kernel_size=3,stride=(2,1))
@@ -45,7 +45,7 @@ class MixedInputBlock(nn.Module):
         return self.max_pool2(self.block(self.max_pool1(self.conv1(x))))
 
 class ConvBlock(nn.Module):
-    def __init__(self,in_channels,out_channels,block=BasicBlock):
+    def __init__(self,in_channels,out_channels,block=SmallBasicBlock):
         super().__init__()
         self.block = block(in_channels=in_channels,out_channels=out_channels)
         self.max_pool = nn.MaxPool2d(kernel_size=3,stride=(2,1))
@@ -54,15 +54,15 @@ class ConvBlock(nn.Module):
         return self.max_pool(self.block(x))
 
 class LPRNet(nn.Module):
-    def __init__(self,in_channels=3,out_channels=64,class_num=7):
+    def __init__(self,in_channels=3,out_channels=64,class_num=7,block=BasicBlock):
         super().__init__()
         self.input_block = MixedInputBlock(3)
-        self.block1 = BasicBlock(in_channels=out_channels*2,out_channels=out_channels*4)
-        self.block2 = ConvBlock(in_channels=out_channels*4,out_channels=out_channels*4)
+        self.block1 = block(in_channels=out_channels*2,out_channels=out_channels*4)
+        self.block2 = ConvBlock(in_channels=out_channels*4,out_channels=out_channels*4,block=block)
         self.dropout1 = nn.Dropout(0.5)
         self.conv1 = nn.Conv2d(in_channels=out_channels*4,out_channels=out_channels*4, kernel_size=(4,1),stride=1,padding=0)
         self.dropout2 = nn.Dropout(0.5)
-        self.conv2 = nn.Conv2d(in_channels=out_channels*4,out_channels=class_num,kernel_size=(13,1),stride=1,padding=0)
+        self.conv2 = nn.Conv2d(in_channels=out_channels*4,out_channels=class_num,kernel_size=(1,13),stride=1,padding=0)
     def forward(self,x):
         return self.conv2(self.dropout2(self.conv1(self.dropout1(self.block2(self.block1(self.input_block(x)))))))
 
