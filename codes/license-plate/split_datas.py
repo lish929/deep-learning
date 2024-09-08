@@ -40,9 +40,9 @@ def split_datas(root):
         val_paths.extend(item[int(len(item)*0.7):int(len(item)*0.9)])
         test_paths.extend(item[int(len(item)*0.9):])
 
-    train_txt = open(os.path.join(root,"train.txt"))
-    val_txt = open(os.path.join(root,"val.txt"))
-    test_txt = open(os.path.join(root,"test.txt"))
+    train_txt = open(os.path.join(root,"train.txt"),"a",encoding="utf8")
+    val_txt = open(os.path.join(root,"val.txt"),"a",encoding="utf8")
+    test_txt = open(os.path.join(root,"test.txt"),"a",encoding="utf8")
 
     for train_path in train_paths:
         train_txt.write(train_path+"\n")

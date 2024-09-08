@@ -1,0 +1,7 @@
+path: D:\datasets\CCPD\images
+train: train.txt
+val: val.txt
+test: test.txt
+
+names:
+  0: plate

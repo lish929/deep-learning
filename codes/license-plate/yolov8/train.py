@@ -13,8 +13,8 @@ if __name__ == '__main__':
 
     # https://docs.ultralytics.com/modes/train/#train-settings 选择需要的参数以及超参数
     results = model.train(
-        data=r"yolov8/ccpd.yaml",       # 数据集配置文件
-        epochs=100,             # 训练轮次
+        data=r"D:\deep_learning\codes\license-plate\yolov8\ccpd.yaml",       # 数据集配置文件
+        epochs=10,             # 训练轮次
         patience=10,            # 无提升轮次 停止训练
         batch=-1,               # 批次
         imgsz=640,              # 图像尺寸
